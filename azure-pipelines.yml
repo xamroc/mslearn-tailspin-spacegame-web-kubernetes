@@ -9,6 +9,29 @@ variables:
   imagePullSecret: 'secret'
 
 stages:
+- stage: 'Scan'
+  displayName: 'Scan'
+  jobs:
+  - job: 'SonarQube'
+    displayName: 'SonarQube scan'
+    pool:
+      vmImage: 'ubuntu-18.04'
+    steps:
+      - task: SonarCloudPrepare@1
+        inputs:
+          SonarCloud: 'Sonar Connection'
+          organization: 'xamroc'
+          scannerMode: 'CLI'
+          configMode: 'manual'
+          cliProjectKey: 'xamroc'
+          cliSources: 'Tailspin.SpaceGame.Web/'
+      - task: SonarCloudAnalyze@1
+        displayName: 'Run SonarCloud code analysis'
+      - task: SonarCloudPublish@1
+        displayName: 'Publish SonarCloud quality gate results'
+        inputs:
+          pollingTimeoutSec: '300'
+
 - stage: 'Build'
   displayName: 'Build and push'
   jobs:  
